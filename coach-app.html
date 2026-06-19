@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>סיכום מתאמנים</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        :root {
+            --blue:   #1a56db;
+            --blue2:  #0e40af;
+            --red:    #ef4444;
+            --green:  #22c55e;
+            --slate:  #64748b;
+            --border: #e2e8f0;
+            --bg:     #f0f4f8;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: #1a202c;
+            min-height: 100vh;
+            direction: rtl;
+            padding-bottom: 68px;
+        }
+
+        /* Header */
+        .hdr {
+            background: linear-gradient(135deg, var(--blue), var(--blue2));
+            color: #fff;
+            padding: .85rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            box-shadow: 0 2px 8px rgba(0,0,0,.2);
+        }
+        .hdr-t  { font-size: .98rem; font-weight: 700; }
+        .hdr-s  { font-size: .68rem; opacity: .8; margin-top: 2px; }
+        .hdr-btn {
+            background: rgba(255,255,255,.2);
+            border: 1.5px solid rgba(255,255,255,.35);
+            border-radius: 9px;
+            color: #fff;
+            padding: .45rem .9rem;
+            font-size: .84rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            touch-action: manipulation;
+            min-height: 40px;
+        }
+
+        /* Notice bar */
+        .notice { background:#fffbeb; border-bottom:1.5px solid #fde68a; padding:.6rem 1rem; font-size:.82rem; color:#92400e; text-align:center; display:none; }
+        .notice.on { display:block; }
+        .notice button { background:#f59e0b; border:none; border-radius:6px; color:#fff; padding:.25rem .6rem; font-size:.78rem; font-weight:700; cursor:pointer; font-family:inherit; margin-right:.4rem; touch-action:manipulation; }
+
+        /* Tab bar */
+        .tabbar { position:fixed; bottom:0; left:0; right:0; background:#fff; border-top:1.5px solid var(--border); display:flex; z-index:30; box-shadow:0 -2px 8px rgba(0,0,0,.07); }
+        .tab { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:.48rem .4rem .55rem; background:none; border:none; cursor:pointer; font-family:inherit; color:var(--slate); font-size:.7rem; font-weight:600; touch-action:manipulation; gap:2px; min-height:54px; transition:color .15s; }
+        .tab .ti { font-size:1.25rem; line-height:1; }
+        .tab.on  { color:var(--blue); }
+        .tab .bdg { background:var(--red); color:#fff; border-radius:10px; font-size:.62rem; font-weight:700; padding:1px 5px; margin-top:1px; display:none; }
+        .tab .bdg.on { display:inline-block; }
+
+        /* Pages */
+        .pg { display:none; }
+        .pg.on { display:block; }
+
+        /* Container */
+        .wrap { max-width:560px; margin:0 auto; padding:.82rem .82rem 1rem; }
+
+        /* Card */
+        .card { background:#fff; border-radius:13px; padding:1.05rem; margin-bottom:.72rem; box-shadow:0 1px 4px rgba(0,0,0,.06),0 3px 10px rgba(0,0,0,.04); }
+        .ct   { font-size:.67rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.09em; margin-bottom:.8rem; }
+
+        /* Form fields */
+        .fld { margin-bottom:.72rem; }
+        .fld:last-child { margin-bottom:0; }
+        label { display:block; font-size:.79rem; font-weight:600; color:#374151; margin-bottom:.28rem; }
+        input[type="text"], input[type="date"], input[type="password"], textarea {
+            width:100%; padding:.6rem .8rem; border:1.5px solid var(--border); border-radius:9px;
+            font-size:1rem; font-family:inherit; color:#1a202c; background:#fafafa;
+            direction:rtl; -webkit-appearance:none; transition:border-color .18s;
+        }
+        input:focus, textarea:focus { outline:none; border-color:#3b82f6; background:#fff; }
+        input[type="date"] { direction:ltr; text-align:right; }
+        textarea { resize:vertical; min-height:130px; line-height:1.75; }
+        .hint { font-size:.72rem; color:#94a3b8; margin-top:.26rem; }
+        .div  { height:1px; background:var(--border); margin:.8rem 0; }
+
+        /* Buttons */
+        .btn {
+            display:flex; align-items:center; justify-content:center; gap:.38rem;
+            width:100%; padding:.82rem; border:none; border-radius:10px;
+            font-size:.94rem; font-weight:700; cursor:pointer; font-family:inherit;
+            touch-action:manipulation; min-height:46px; transition:opacity .15s;
+        }
+        .btn:active { opacity:.78; }
+        .btn:disabled { opacity:.45; cursor:not-allowed; }
+        .btn-rec  { background:var(--red); color:#fff; min-height:52px; font-size:1rem; }
+        .btn-rec.rec { background:#dc2626; }
+        .btn-add  { background:#0ea5e9; color:#fff; }
+        .btn-cp   { background:#f1f5f9; color:#374151; border:1.5px solid var(--border); }
+        .btn-ed   { background:#f1f5f9; color:#374151; border:1.5px solid var(--border); }
+        .btn-nw   { background:#f1f5f9; color:#374151; border:1.5px solid var(--border); }
+        .btn-sv   { background:var(--blue); color:#fff; }
+        .btn-dan  { background:#fee2e2; color:#dc2626; border:1.5px solid #fecaca; }
+        .btn-row  { display:flex; gap:.55rem; }
+        .btn-row .btn { flex:1; }
+
+        /* Status */
+        .stat { display:inline-flex; align-items:center; gap:.32rem; padding:.26rem .72rem; border-radius:20px; font-size:.76rem; font-weight:600; margin-bottom:.75rem; }
+        .si { background:#f1f5f9; color:var(--slate); }
+        .sr { background:#fee2e2; color:#dc2626; }
+        .sp { background:#fef9c3; color:#a16207; }
+        .sd { background:#dcfce7; color:#15803d; }
+        .se { background:#fee2e2; color:#dc2626; }
+
+        .tmr { font-size:1.85rem; font-weight:700; text-align:center; color:#dc2626; letter-spacing:.06em; margin:.22rem 0 .65rem; display:none; }
+        .tmr.on { display:block; }
+        .dot { display:inline-block; width:8px; height:8px; background:#dc2626; border-radius:50%; margin-left:2px; animation:blink 1s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.12} }
+
+        .prog { display:none; flex-direction:column; align-items:center; gap:.42rem; padding:.75rem 0 .2rem; color:var(--slate); font-size:.83rem; }
+        .prog.on { display:flex; }
+        .spin { width:25px; height:25px; border:3px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        .err { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; padding:.58rem .8rem; border-radius:9px; font-size:.8rem; margin-top:.72rem; display:none; }
+        .err.on { display:block; }
+
+        /* Summary display box */
+        .sbox { background:#f8fafc; border:1.5px solid var(--border); border-radius:10px; padding:.9rem .95rem; font-size:.9rem; line-height:1.8; white-space:pre-wrap; word-break:break-word; color:#1e293b; min-height:100px; transition:border-color .3s,background .3s; }
+        .sbox.flash { border-color:var(--green); background:#f0fdf4; }
+
+        /* Settings panel */
+        .sett { display:none; position:fixed; inset:0; background:#fff; z-index:500; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+        .sett.on { display:block; }
+        .sett-top { background:#1e293b; color:#fff; padding:.88rem 1rem; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; }
+        .sett-top h2 { font-size:.93rem; font-weight:700; }
+        .sett-close { background:rgba(255,255,255,.15); border:none; border-radius:8px; color:#fff; padding:.4rem .82rem; font-size:.82rem; font-weight:600; cursor:pointer; font-family:inherit; touch-action:manipulation; min-height:38px; }
+        .sett-body { max-width:540px; margin:0 auto; padding:1.05rem .95rem 3rem; }
+        .tip { background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:10px; padding:.78rem .9rem; font-size:.79rem; color:#1d4ed8; line-height:1.6; margin-bottom:.85rem; }
+        .tip strong { display:block; margin-bottom:.22rem; }
+
+        /* Weekly page */
+        .wk-hdr { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.45rem; margin-bottom:.5rem; }
+        .wk-hdr h2 { font-size:.98rem; font-weight:700; }
+        .wk-sub { font-size:.76rem; color:var(--slate); margin-top:1px; }
+
+        .empty { text-align:center; padding:2.5rem 1rem; color:var(--slate); }
+        .empty .ei { font-size:2.4rem; margin-bottom:.55rem; }
+        .empty p { font-size:.86rem; line-height:1.6; }
+
+        /* Athlete item */
+        .ai { background:#fff; border-radius:11px; margin-bottom:.6rem; box-shadow:0 1px 4px rgba(0,0,0,.06); overflow:hidden; }
+        .ai-hdr { display:flex; align-items:center; padding:.65rem .88rem .65rem .6rem; gap:.45rem; cursor:pointer; user-select:none; }
+        .ai-num { font-size:.73rem; font-weight:700; color:var(--blue); background:#eff6ff; border-radius:6px; padding:.18rem .42rem; min-width:22px; text-align:center; flex-shrink:0; }
+        .ai-name { font-size:.9rem; font-weight:700; flex:1; }
+        .ai-chev { font-size:.82rem; color:var(--slate); transition:transform .2s; flex-shrink:0; }
+        .ai.open .ai-chev { transform:rotate(180deg); }
+        .ai-body { display:none; padding:0 .88rem .88rem; }
+        .ai.open .ai-body { display:block; }
+        .ai-txt  { background:#f8fafc; border:1.5px solid var(--border); border-radius:8px; padding:.65rem .82rem; font-size:.86rem; line-height:1.75; white-space:pre-wrap; word-break:break-word; color:#1e293b; margin-bottom:.6rem; display:block; }
+        .ai-ta   { width:100%; background:#fff; border:1.5px solid #3b82f6; border-radius:8px; padding:.65rem .82rem; font-size:.86rem; line-height:1.75; color:#1e293b; margin-bottom:.6rem; font-family:inherit; resize:vertical; min-height:90px; -webkit-appearance:none; display:none; }
+        .ai-acts { display:flex; gap:.45rem; }
+        .ab { flex:1; display:flex; align-items:center; justify-content:center; gap:.28rem; padding:.45rem; border-radius:7px; border:1.5px solid var(--border); background:#f8fafc; color:#374151; font-size:.76rem; font-weight:600; cursor:pointer; font-family:inherit; touch-action:manipulation; }
+        .ab.mv   { flex:0 0 auto; padding:.45rem .62rem; }
+        .ab.del  { color:#dc2626; border-color:#fecaca; background:#fef2f2; }
+        .ab.edon { background:#eff6ff; color:var(--blue); border-color:#bfdbfe; }
+
+        /* Weekly copy box */
+        .wbox { background:#f8fafc; border:1.5px solid var(--border); border-radius:11px; padding:.95rem; font-size:.86rem; line-height:1.8; white-space:pre-wrap; word-break:break-word; color:#1e293b; margin-bottom:.72rem; transition:border-color .3s,background .3s; }
+        .wbox.flash { border-color:var(--green); background:#f0fdf4; }
+
+        /* Misc */
+        .hidden { display:none !important; }
+        .toast  { position:fixed; bottom:4.8rem; left:50%; transform:translateX(-50%); background:#1e293b; color:#fff; padding:.52rem 1.05rem; border-radius:100px; font-size:.81rem; z-index:9999; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.22); pointer-events:none; }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="hdr">
+    <div>
+        <div class="hdr-t">🏊‍♂️ סיכום מתאמנים</div>
+        <div class="hdr-s">מאמן טריאתלון</div>
+    </div>
+    <button class="hdr-btn" onclick="openSett()">⚙️ הגדרות</button>
+</div>
+
+<!-- Notice -->
+<div id="notice" class="notice">
+    ⚠️ טרם הוגדרו מפתחות API
+    <button onclick="openSett()">הגדר עכשיו</button>
+</div>
+
+<!-- ═══ PAGE 1 — RECORDING ═══ -->
+<div id="pgRec" class="pg on">
+    <div class="wrap">
+
+        <div class="card">
+            <div class="ct">פרטי מתאמן</div>
+            <div class="fld">
+                <label>שם מתאמן</label>
+                <input type="text" id="aName" placeholder="הזן שם מלא">
+            </div>
+            <div class="fld">
+                <label>תאריך שיחה</label>
+                <input type="date" id="aDate">
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="ct">הקלטה ותמלול</div>
+            <div id="stat" class="stat si">⏸ ממתין להקלטה</div>
+            <div id="tmr" class="tmr">00:00</div>
+            <button id="recBtn" class="btn btn-rec" onclick="toggleRec()">🎙️ התחל הקלטה</button>
+            <div id="prog" class="prog">
+                <div class="spin"></div>
+                <span id="progTxt">מעבד...</span>
+            </div>
+            <div id="errBox" class="err"></div>
+        </div>
+
+        <div id="sumCard" class="card hidden">
+            <div class="ct">סיכום שיחה</div>
+            <div id="sumDisp" class="sbox"></div>
+            <div id="sumEdit" class="fld hidden" style="margin-top:.75rem">
+                <textarea id="sumTa"></textarea>
+            </div>
+            <div class="div"></div>
+            <div style="display:flex;flex-direction:column;gap:.58rem">
+                <button id="addBtn" class="btn btn-add" onclick="addToWeekly()">➕ הוסף לסיכום השבועי</button>
+                <div class="btn-row">
+                    <button id="cpBtn"  class="btn btn-cp" onclick="copySingle()">📋 העתק</button>
+                    <button id="edBtn"  class="btn btn-ed" onclick="toggleEdit()">✏️ ערוך</button>
+                    <button          class="btn btn-nw" onclick="resetRec()">🔄 חדש</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ═══ PAGE 2 — WEEKLY SUMMARY ═══ -->
+<div id="pgWk" class="pg">
+    <div class="wrap">
+
+        <div class="card" style="padding:.88rem 1rem">
+            <div class="wk-hdr">
+                <div>
+                    <div style="font-size:.98rem;font-weight:700">📋 סיכום שבועי</div>
+                    <div id="wkRange" class="wk-sub"></div>
+                </div>
+                <button class="btn btn-dan" style="width:auto;padding:.38rem .8rem;font-size:.78rem;min-height:34px" onclick="clearWeek()">🗑️ נקה שבוע</button>
+            </div>
+        </div>
+
+        <div id="aiList"></div>
+
+        <div id="emptyMsg" class="empty hidden">
+            <div class="ei">📝</div>
+            <p>עדיין לא נוספו סיכומים לשבוע זה.<br>הקלט שיחה ולחץ "הוסף לסיכום השבועי".</p>
+        </div>
+
+        <div id="wkCopyCard" class="card hidden">
+            <div class="ct">שליחה לבוס</div>
+            <div id="wkBox" class="wbox"></div>
+            <button id="wkCpBtn" class="btn btn-cp" onclick="copyWeekly()">📋 העתק הכל לשליחה</button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Tab bar -->
+<div class="tabbar">
+    <button class="tab on" id="tabRec" onclick="goTab('rec')">
+        <span class="ti">🎙️</span>
+        הקלטה
+    </button>
+    <button class="tab" id="tabWk" onclick="goTab('wk')">
+        <span class="ti">📋</span>
+        סיכום שבועי
+        <span id="wkBdg" class="bdg"></span>
+    </button>
+</div>
+
+<!-- Settings panel -->
+<div id="sett" class="sett">
+    <div>
+        <div class="sett-top">
+            <h2>⚙️ הגדרות</h2>
+            <button class="sett-close" onclick="closeSett()">✕ סגור</button>
+        </div>
+        <div class="sett-body">
+            <div class="tip">
+                <strong>📱 פתיחה ב-iPhone (Windows)</strong>
+                שלח לעצמך את הקובץ במייל ← פתח ב-iPhone ← לחץ על הקובץ ← "פתח ב-Safari".
+            </div>
+            <div class="tip" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534">
+                <strong>⚠️ Chrome על Windows</strong>
+                Chrome חוסם הקלטה מקבצים מקומיים. השתמש ב-Firefox, Edge, או Safari (iPhone). לחלופין כתוב/הדבק תמליל ידנית בתיבה שתופיע.
+            </div>
+            <div class="fld">
+                <label>מפתח OpenAI (Whisper)</label>
+                <input type="text" id="oaiKey" placeholder="sk-..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" dir="ltr">
+                <div class="hint">platform.openai.com → API keys</div>
+            </div>
+            <div class="fld">
+                <label>מפתח Anthropic (Claude)</label>
+                <input type="text" id="antKey" placeholder="sk-ant-..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" dir="ltr">
+                <div class="hint">console.anthropic.com → API keys</div>
+            </div>
+            <div class="div"></div>
+            <button class="btn btn-sv" onclick="saveSett()">💾 שמור</button>
+            <div id="settErr" class="err" style="margin-top:.75rem"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════════════
+//  App state
+// ════════════════════════════════════════════════════════════════════════
+var mediaRec   = null;
+var chunks     = [];
+var recording  = false;
+var timerInt   = null;
+var timerSec   = 0;
+var editMode   = false;
+
+// ════════════════════════════════════════════════════════════════════════
+//  Storage helpers
+// ════════════════════════════════════════════════════════════════════════
+function getItems()  { try { return JSON.parse(localStorage.getItem('wkItems') || '[]'); } catch(e){ return []; } }
+function getOrder()  { try { return JSON.parse(localStorage.getItem('aOrder')  || '[]'); } catch(e){ return []; } }
+function setItems(a) { localStorage.setItem('wkItems', JSON.stringify(a)); }
+function setOrder(a) { localStorage.setItem('aOrder',  JSON.stringify(a)); }
+
+// ════════════════════════════════════════════════════════════════════════
+//  Init
+// ════════════════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('aDate').value = isoToday();
+    setWkRange();
+    updateBadge();
+    if (!localStorage.getItem('oaiKey') || !localStorage.getItem('antKey')) {
+        document.getElementById('notice').classList.add('on');
+    }
+});
+
+function isoToday() {
+    return new Date().toISOString().split('T')[0];
+}
+function setWkRange() {
+    var t = new Date();
+    var d = t.getDay();
+    var sun = new Date(t); sun.setDate(t.getDate() - d);
+    var nxt = new Date(sun); nxt.setDate(sun.getDate() + 7);
+    var f = function(x){ return x.toLocaleDateString('he-IL',{day:'numeric',month:'numeric'}); };
+    document.getElementById('wkRange').textContent = 'ראשון ' + f(sun) + ' — ראשון ' + f(nxt);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Tab navigation
+// ════════════════════════════════════════════════════════════════════════
+function goTab(tab) {
+    document.getElementById('pgRec').classList.remove('on');
+    document.getElementById('pgWk').classList.remove('on');
+    document.getElementById('tabRec').classList.remove('on');
+    document.getElementById('tabWk').classList.remove('on');
+    if (tab === 'rec') {
+        document.getElementById('pgRec').classList.add('on');
+        document.getElementById('tabRec').classList.add('on');
+    } else {
+        document.getElementById('pgWk').classList.add('on');
+        document.getElementById('tabWk').classList.add('on');
+        renderList();
+    }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Settings
+// ════════════════════════════════════════════════════════════════════════
+function openSett() {
+    document.getElementById('oaiKey').value = localStorage.getItem('oaiKey') || '';
+    document.getElementById('antKey').value = localStorage.getItem('antKey') || '';
+    document.getElementById('settErr').classList.remove('on');
+    document.getElementById('sett').classList.add('on');
+    setTimeout(function(){
+        var f = document.getElementById('oaiKey');
+        if (!f.value) f.focus();
+    }, 300);
+}
+function closeSett() { document.getElementById('sett').classList.remove('on'); }
+function saveSett() {
+    var oai = document.getElementById('oaiKey').value.trim();
+    var ant = document.getElementById('antKey').value.trim();
+    if (!oai || !ant) {
+        var e = document.getElementById('settErr');
+        e.textContent = 'נא להזין את שני המפתחות';
+        e.classList.add('on');
+        return;
+    }
+    localStorage.setItem('oaiKey', oai);
+    localStorage.setItem('antKey', ant);
+    document.getElementById('notice').classList.remove('on');
+    closeSett();
+    toast('הגדרות נשמרו ✓');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Recording
+// ════════════════════════════════════════════════════════════════════════
+function toggleRec() {
+    if (recording) stopRec(); else startRec();
+}
+
+function startRec() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        // Fallback: show manual transcript box
+        showManualInput();
+        return;
+    }
+    navigator.mediaDevices.getUserMedia({ audio: true })
+        .then(function(stream) {
+            var mime = ['audio/webm;codecs=opus','audio/webm','audio/mp4','audio/ogg']
+                .find(function(t){ return MediaRecorder.isTypeSupported(t); }) || '';
+            chunks = [];
+            mediaRec = new MediaRecorder(stream, mime ? { mimeType: mime } : {});
+            mediaRec.ondataavailable = function(e) { if (e.data.size > 0) chunks.push(e.data); };
+            mediaRec.onstop = function() {
+                stream.getTracks().forEach(function(t){ t.stop(); });
+                processAudio();
+            };
+            mediaRec.start(500);
+            recording = true;
+            clearErr();
+            setStat('r', '<span class="dot"></span> מקליט...');
+            startTimer();
+            document.getElementById('recBtn').innerHTML = '⏹ עצור הקלטה';
+            document.getElementById('recBtn').classList.add('rec');
+        })
+        .catch(function(e) {
+            if (e.name === 'NotAllowedError') {
+                showErr('הגישה למיקרופון נדחתה. אשר גישה ונסה שוב.');
+            } else if (e.name === 'NotFoundError') {
+                showErr('לא נמצא מיקרופון במכשיר.');
+            } else {
+                // Likely file:// protocol or HTTPS issue → show manual fallback
+                showManualInput();
+            }
+        });
+}
+
+function showManualInput() {
+    document.getElementById('recBtn').classList.add('hidden');
+    document.getElementById('manualSection').classList.remove('hidden');
+}
+
+function stopRec() {
+    if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop();
+    recording = false;
+    stopTimer();
+    setStat('p', '⏳ מעבד...');
+    document.getElementById('recBtn').innerHTML = '🎙️ הקלטה חדשה';
+    document.getElementById('recBtn').classList.remove('rec');
+    document.getElementById('recBtn').disabled = true;
+}
+
+function startTimer() {
+    timerSec = 0;
+    document.getElementById('tmr').classList.add('on');
+    timerInt = setInterval(function(){
+        timerSec++;
+        var m = String(Math.floor(timerSec/60)).padStart(2,'0');
+        var s = String(timerSec%60).padStart(2,'0');
+        document.getElementById('tmr').textContent = m+':'+s;
+    }, 1000);
+}
+function stopTimer() {
+    clearInterval(timerInt);
+    document.getElementById('tmr').classList.remove('on');
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Manual transcript fallback
+// ════════════════════════════════════════════════════════════════════════
+// (inserted into recording card via HTML below)
+
+function processManual() {
+    var text = document.getElementById('manualTa').value.trim();
+    if (!text) { showErr('נא להזין טקסט'); return; }
+    document.getElementById('manualSection').classList.add('hidden');
+    summarizeText(text);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Audio → Whisper → Claude
+// ════════════════════════════════════════════════════════════════════════
+function processAudio() {
+    var oai = localStorage.getItem('oaiKey');
+    var ant = localStorage.getItem('antKey');
+    if (!oai || !ant) {
+        showErr('נא להגדיר מפתחות API בהגדרות');
+        setStat('e','❌ חסרים מפתחות');
+        document.getElementById('recBtn').disabled = false;
+        return;
+    }
+
+    showProg('מתמלל את ההקלטה...');
+    var mimeType = (chunks[0] && chunks[0].type) ? chunks[0].type : 'audio/webm';
+    var ext = mimeType.indexOf('mp4')>=0 ? 'm4a' : mimeType.indexOf('ogg')>=0 ? 'ogg' : 'webm';
+    var blob = new Blob(chunks, { type: mimeType });
+    var file = new File([blob], 'rec.'+ext, { type: mimeType });
+    var fd = new FormData();
+    fd.append('file', file);
+    fd.append('model', 'whisper-1');
+    fd.append('language', 'he');
+
+    fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + oai },
+        body: fd
+    })
+    .then(function(r) {
+        if (!r.ok) return r.json().then(function(e){ throw new Error('שגיאת Whisper: ' + ((e.error && e.error.message) || r.status)); });
+        return r.json();
+    })
+    .then(function(data) {
+        if (!data.text || !data.text.trim()) throw new Error('ההקלטה ריקה — נסה שוב');
+        return summarizeText(data.text);
+    })
+    .catch(function(e) {
+        hideProg();
+        showErr(e.message);
+        setStat('e','❌ שגיאה');
+        document.getElementById('recBtn').disabled = false;
+    });
+}
+
+function summarizeText(transcript) {
+    var ant  = localStorage.getItem('antKey');
+    var name = (document.getElementById('aName').value || '').trim() || 'המתאמן';
+
+    if (!ant) {
+        hideProg();
+        showErr('נא להגדיר מפתח Anthropic בהגדרות');
+        setStat('e','❌ חסר מפתח');
+        document.getElementById('recBtn').disabled = false;
+        return;
+    }
+
+    showProg('מייצר סיכום...');
+
+    var sys = 'אתה עוזר למאמן טריאתלון לסכם שיחות עם מתאמנים.\n' +
+        'קבל תמליל שיחה וכתוב פסקה אחת רצופה בעברית — סגנון דיווח מקצועי ותמציתי.\n\n' +
+        'הפסקה תפתח עם שם המתאמן ומקף, ותכיל ברצף:\n' +
+        '1. אימוני סוף שבוע — מה ביצע, עם מי, איך הלך\n' +
+        '2. תחושות וביצועים — איך הרגיש, שביעות רצון, קשיים\n' +
+        '3. מעבר על תוכנית אימונים לשבוע הקרוב — מה סוכם\n' +
+        '4. דגשים שניתנו — הנחיות, עצות, הסברים מקצועיים\n' +
+        '5. שאלות ונושאים נוספים — ציוד, בריאות, אירועים וכד׳\n\n' +
+        'נקודת מבט של המאמן: "הסברתי לו", "עברנו על", "אמרתי לו".\n' +
+        'ללא כותרות, ללא נקודות, ללא שורות חדשות. אם נושא לא עלה — לא לכתוב אותו.\n' +
+        'כתוב את הסיכום בלבד.';
+
+    return fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'x-api-key': ant,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true',
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+            model: 'claude-haiku-4-5-20251001',
+            max_tokens: 1000,
+            system: sys,
+            messages: [{ role: 'user', content: 'תמליל:\n\n' + transcript }]
+        })
+    })
+    .then(function(r) {
+        if (!r.ok) return r.json().then(function(e){ throw new Error('שגיאת Claude: ' + ((e.error && e.error.message) || r.status)); });
+        return r.json();
+    })
+    .then(function(data) {
+        hideProg();
+        var summary = data.content[0].text;
+        document.getElementById('sumDisp').textContent = summary;
+        document.getElementById('sumTa').value = summary;
+        show('sumCard');
+        setStat('d','✅ סיכום מוכן');
+        document.getElementById('sumCard').scrollIntoView({ behavior:'smooth', block:'start' });
+        document.getElementById('recBtn').disabled = false;
+    })
+    .catch(function(e) {
+        hideProg();
+        showErr(e.message);
+        setStat('e','❌ שגיאה');
+        document.getElementById('recBtn').disabled = false;
+    });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Add to weekly
+// ════════════════════════════════════════════════════════════════════════
+function addToWeekly() {
+    var name = (document.getElementById('aName').value || '').trim() || 'מתאמן';
+    var text = editMode
+        ? document.getElementById('sumTa').value.trim()
+        : document.getElementById('sumDisp').textContent.trim();
+    if (!text) return;
+
+    var items = getItems();
+    var order = getOrder();
+
+    // Remove existing entry for same athlete
+    var filtered = items.filter(function(i){ return i.name.toLowerCase() !== name.toLowerCase(); });
+
+    // Find insert position based on saved order
+    var pos = filtered.length;
+    if (order.length > 0) {
+        var savedIdx = -1;
+        for (var oi=0; oi<order.length; oi++) {
+            if (order[oi].toLowerCase() === name.toLowerCase()) { savedIdx = oi; break; }
+        }
+        if (savedIdx >= 0) {
+            for (var fi=0; fi<filtered.length; fi++) {
+                var fIdx = -1;
+                for (var oi2=0; oi2<order.length; oi2++) {
+                    if (order[oi2].toLowerCase() === filtered[fi].name.toLowerCase()) { fIdx = oi2; break; }
+                }
+                if (fIdx === -1 || fIdx > savedIdx) { pos = fi; break; }
+            }
+        }
+    }
+
+    filtered.splice(pos, 0, { id: Date.now(), name: name, text: text });
+    setItems(filtered);
+    updateBadge();
+
+    var btn = document.getElementById('addBtn');
+    btn.innerHTML = '✓ נוסף!';
+    btn.style.background = '#15803d';
+    setTimeout(function(){
+        btn.innerHTML = '➕ הוסף לסיכום השבועי';
+        btn.style.background = '';
+    }, 1800);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Render weekly list
+// ════════════════════════════════════════════════════════════════════════
+function renderList() {
+    var items = getItems();
+    var list  = document.getElementById('aiList');
+    var empty = document.getElementById('emptyMsg');
+    var ccard = document.getElementById('wkCopyCard');
+
+    if (items.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        ccard.classList.add('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+    ccard.classList.remove('hidden');
+
+    list.innerHTML = items.map(function(item, idx) {
+        var isFirst = idx === 0;
+        var isLast  = idx === items.length - 1;
+        return '<div class="ai" id="ai-' + item.id + '">' +
+            '<div class="ai-hdr" onclick="togAI(' + item.id + ')">' +
+                '<span class="ai-num">' + (idx+1) + '</span>' +
+                '<span class="ai-name">' + esc(item.name) + '</span>' +
+                '<span class="ai-chev">▼</span>' +
+            '</div>' +
+            '<div class="ai-body">' +
+                '<span class="ai-txt" id="at-' + item.id + '">' + esc(item.text) + '</span>' +
+                '<textarea class="ai-ta" id="ata-' + item.id + '">' + esc(item.text) + '</textarea>' +
+                '<div class="ai-acts">' +
+                    '<button class="ab mv" onclick="mvItem(' + item.id + ',-1)"' + (isFirst?' disabled':'') + '>▲</button>' +
+                    '<button class="ab mv" onclick="mvItem(' + item.id + ',1)"'  + (isLast ?' disabled':'') + '>▼</button>' +
+                    '<button class="ab" id="eb-' + item.id + '" onclick="togEdit(' + item.id + ')">✏️ ערוך</button>' +
+                    '<button class="ab del" onclick="delItem(' + item.id + ')">🗑️</button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+
+    buildWkBox(items);
+}
+
+function togAI(id) {
+    var el = document.getElementById('ai-'+id);
+    if (el) el.classList.toggle('open');
+}
+
+function togEdit(id) {
+    var txt  = document.getElementById('at-'+id);
+    var ta   = document.getElementById('ata-'+id);
+    var btn  = document.getElementById('eb-'+id);
+    if (!txt || !ta || !btn) return;
+    if (ta.style.display === 'block') {
+        var v = ta.value.trim();
+        txt.textContent = v;
+        txt.style.display = '';
+        ta.style.display  = 'none';
+        btn.textContent = '✏️ ערוך';
+        btn.classList.remove('edon');
+        var items = getItems();
+        for (var i=0; i<items.length; i++) {
+            if (items[i].id === id) { items[i].text = v; break; }
+        }
+        setItems(items);
+        buildWkBox(items);
+    } else {
+        ta.value = txt.textContent;
+        txt.style.display = 'none';
+        ta.style.display  = 'block';
+        btn.textContent = '✅ שמור';
+        btn.classList.add('edon');
+        ta.focus();
+    }
+}
+
+function mvItem(id, dir) {
+    var items = getItems();
+    var idx   = -1;
+    for (var i=0; i<items.length; i++) { if (items[i].id === id) { idx = i; break; } }
+    if (idx < 0) return;
+    var ni = idx + dir;
+    if (ni < 0 || ni >= items.length) return;
+    var tmp = items[idx]; items[idx] = items[ni]; items[ni] = tmp;
+    setItems(items);
+    setOrder(items.map(function(x){ return x.name; }));
+    renderList();
+    toast('סדר עודכן ונשמר ✓');
+}
+
+function delItem(id) {
+    var items = getItems().filter(function(i){ return i.id !== id; });
+    setItems(items);
+    renderList();
+    updateBadge();
+}
+
+function clearWeek() {
+    if (!confirm('לנקות את כל סיכומי השבוע?')) return;
+    var items = getItems();
+    if (items.length > 0) setOrder(items.map(function(x){ return x.name; }));
+    setItems([]);
+    renderList();
+    updateBadge();
+    toast('הסיכום נוקה. הסדר נשמר לשבוע הבא ✓');
+}
+
+function buildWkBox(items) {
+    if (!items || items.length === 0) return;
+    var today = new Date().toLocaleDateString('he-IL',{day:'numeric',month:'numeric',year:'numeric'});
+    var lines = ['הי', 'סיימתי שיחות עם המתאמנים לשבוע הקרוב', 'מצורף הסיכום:', ''];
+    for (var i=0; i<items.length; i++) {
+        lines.push((i+1) + '. ' + items[i].text);
+        lines.push('');
+    }
+    lines.push(today);
+    document.getElementById('wkBox').textContent = lines.join('\n');
+}
+
+function copyWeekly() {
+    var text = document.getElementById('wkBox').textContent;
+    var box  = document.getElementById('wkBox');
+    var btn  = document.getElementById('wkCpBtn');
+    doFlash(btn, box, '📋 העתק הכל לשליחה', text);
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  Recording page helpers
+// ════════════════════════════════════════════════════════════════════════
+function toggleEdit() {
+    editMode = !editMode;
+    var disp = document.getElementById('sumDisp');
+    var wrap = document.getElementById('sumEdit');
+    var btn  = document.getElementById('edBtn');
+    if (editMode) {
+        document.getElementById('sumTa').value = disp.textContent;
+        disp.classList.add('hidden');
+        wrap.classList.remove('hidden');
+        btn.innerHTML = '✅ סיום';
+    } else {
+        var v = document.getElementById('sumTa').value;
+        disp.textContent = v;
+        disp.classList.remove('hidden');
+        wrap.classList.add('hidden');
+        btn.innerHTML = '✏️ ערוך';
+    }
+}
+
+function copySingle() {
+    var text = editMode
+        ? document.getElementById('sumTa').value
+        : document.getElementById('sumDisp').textContent;
+    doFlash(document.getElementById('cpBtn'), document.getElementById('sumDisp'), '📋 העתק', text);
+}
+
+function resetRec() {
+    hide('sumCard');
+    clearErr();
+    editMode = false;
+    setStat('i','⏸ ממתין להקלטה');
+    document.getElementById('recBtn').innerHTML = '🎙️ התחל הקלטה';
+    document.getElementById('recBtn').disabled  = false;
+    document.getElementById('recBtn').classList.remove('hidden');
+    document.getElementById('recBtn').classList.remove('rec');
+    document.getElementById('aName').value = '';
+    document.getElementById('aDate').value = isoToday();
+    document.getElementById('sumDisp').textContent = '';
+    document.getElementById('sumDisp').classList.remove('hidden');
+    document.getElementById('sumEdit').classList.add('hidden');
+    document.getElementById('edBtn').innerHTML = '✏️ ערוך';
+    document.getElementById('addBtn').innerHTML = '➕ הוסף לסיכום השבועי';
+    document.getElementById('addBtn').style.background = '';
+    // reset manual section too
+    var ms = document.getElementById('manualSection');
+    if (ms) { ms.classList.add('hidden'); document.getElementById('manualTa').value = ''; }
+    window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+// ════════════════════════════════════════════════════════════════════════
+//  UI helpers
+// ════════════════════════════════════════════════════════════════════════
+function updateBadge() {
+    var n   = getItems().length;
+    var bdg = document.getElementById('wkBdg');
+    if (n > 0) { bdg.textContent = n; bdg.classList.add('on'); }
+    else { bdg.classList.remove('on'); }
+}
+function setStat(t, html) {
+    var el = document.getElementById('stat');
+    var map = {i:'si',r:'sr',p:'sp',d:'sd',e:'se'};
+    el.className = 'stat ' + (map[t]||'si');
+    el.innerHTML = html;
+}
+function showProg(txt) { document.getElementById('progTxt').textContent = txt; document.getElementById('prog').classList.add('on'); }
+function hideProg()    { document.getElementById('prog').classList.remove('on'); }
+function showErr(msg)  { var e=document.getElementById('errBox'); e.textContent=msg; e.classList.add('on'); }
+function clearErr()    { document.getElementById('errBox').classList.remove('on'); }
+function show(id)      { document.getElementById(id).classList.remove('hidden'); }
+function hide(id)      { document.getElementById(id).classList.add('hidden'); }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function doFlash(btn, box, origLabel, text) {
+    var flash = function() {
+        btn.innerHTML = '✓ הועתק!';
+        box.classList.add('flash');
+        setTimeout(function(){ btn.innerHTML = origLabel; box.classList.remove('flash'); }, 1800);
+    };
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(flash).catch(function(){ fbCopy(text); flash(); });
+    } else { fbCopy(text); flash(); }
+}
+function fbCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch(e){}
+    document.body.removeChild(ta);
+}
+function toast(msg) {
+    var el = document.createElement('div');
+    el.className = 'toast';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 2400);
+}
+</script>
+
+<!-- Manual transcript fallback (hidden by default, shown when mic unavailable) -->
+<script>
+// Inject manual input section into the recording card after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    var recCard = document.getElementById('recBtn').parentNode;
+    var ms = document.createElement('div');
+    ms.id = 'manualSection';
+    ms.className = 'hidden';
+    ms.innerHTML =
+        '<div style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:9px;padding:.75rem .9rem;font-size:.8rem;color:#1d4ed8;margin-top:.75rem;margin-bottom:.72rem">' +
+            '📋 הקלטה לא זמינה בדפדפן זה. הדבק כאן את תמציל השיחה ידנית:' +
+        '</div>' +
+        '<textarea id="manualTa" placeholder="הדבק או כתוב את תוכן השיחה כאן..." style="width:100%;min-height:130px;padding:.65rem .82rem;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.95rem;font-family:inherit;direction:rtl;resize:vertical;-webkit-appearance:none;margin-bottom:.72rem"></textarea>' +
+        '<button class="btn btn-sv" onclick="processManual()" style="margin-bottom:.4rem">✨ צור סיכום</button>';
+    recCard.insertBefore(ms, document.getElementById('errBox'));
+});
+</script>
+
+</body>
+</html>
